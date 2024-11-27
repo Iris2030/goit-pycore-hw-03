@@ -9,7 +9,7 @@ users = [
 ]
 
 def get_upcoming_birthdays():
-    # Get today's date and the next 7 days
+    
     today_date = datetime.today().date()
     next_week_date = today_date + timedelta(days=7)
     birthday_list = []
@@ -18,24 +18,28 @@ def get_upcoming_birthdays():
         # Convert the user's birthday to a date object
         user_birthday = datetime.strptime(user["birthday"], "%Y.%m.%d").date()
         
-        # Check if user's birthday is in the upcoming week (ignoring year)
         # Calculate the user's birthday in the current year
         user_birthday_this_year = user_birthday.replace(year=today_date.year)
-
-        # Check if user's birthday is on the weekend
-        if (today_date <= user_birthday_this_year <= next_week_date): 
-            if user_birthday_this_year.weekday() == 5:   
-                congratulation_date = user_birthday_this_year + timedelta(days=2)
-            elif user_birthday_this_year.weekday() == 6:  
+        
+        # If the birthday already passed this year, move it to the next year
+        if user_birthday_this_year < today_date:
+            user_birthday_this_year = user_birthday.replace(year=today_date.year + 1)
+        
+        # Check if the birthday is within the next 7 days
+        if today_date <= user_birthday_this_year <= next_week_date:
+            # If the birthday is on a weekend, move it to the following Monday
+            if user_birthday_this_year.weekday() == 5:  # Saturday
+                congratulation_date = user_birthday_this_year + timedelta(days=2)  
+            elif user_birthday_this_year.weekday() == 6:  # Sunday
                 congratulation_date = user_birthday_this_year + timedelta(days=1)
             else:
-                congratulation_date = user_birthday_this_year  
+                congratulation_date = user_birthday_this_year  # Not a weekend
+            
 
             birthday_list.append({
                 "name": user["name"],
-                "congratulation_date": congratulation_date.strftime("%d-%m-%Y")  # formatted date
+                "congratulation_date": congratulation_date.strftime("%d-%m-%Y")
             })
-              
 
     return birthday_list
     
